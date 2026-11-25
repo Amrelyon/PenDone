@@ -1,0 +1,30 @@
+{
+  "app_id": "11111111-1111-1111-1111-111111111111",
+  "slug": "task-vault",
+  "name": "Task Vault",
+  "schema_version": "1.0.0",
+  "storage": {
+    "provider": "google_drive",
+    "scope": "https://www.googleapis.com/auth/drive.file",
+    "folder_name": "PenDone/task-vault",
+    "file_name": "data.json",
+    "format": "json"
+  },
+  "fields": {
+    "updatable_info": [
+      "notes",
+      "user_status",
+      "preferred_theme"
+    ],
+    "read_only_fields": [
+      "record_id",
+      "issued_by",
+      "verified_balance",
+      "created_at"
+    ]
+  },
+  "revenue_share": {
+    "platform_fee_percent": 10,
+    "builder_share_percent": 90
+  }
+}
