@@ -12,10 +12,8 @@ const corsHeaders = {
 
 interface GatewayPayload {
   app_id: string;
-  action: "read_pointer" | "write_updatable" | "record_revenue" | "revoke_pointer";
+  action: "read_pointer" | "write_updatable";
   updates?: Record<string, unknown>;
-  gross_amount?: number;
-  currency?: string;
 }
 
 serve(async (req: Request) => {
@@ -91,77 +89,18 @@ serve(async (req: Request) => {
       });
     }
 
-    // Server-side 10% revenue share transaction recording
-    if (body.action === "record_revenue") {
-      const grossAmount = Number(body.gross_amount ?? 0);
-      if (!Number.isFinite(grossAmount) || grossAmount <= 0) {
-        await logUsage(400);
-        return new Response(JSON.stringify({ error: "Positive gross_amount required" }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const { data: tx, error: txError } = await supabaseAdmin
-        .from("revenue_transactions")
-        .insert({
-          app_id: appId,
-          payer_user_id: userId,
-          gross_amount: grossAmount,
-          currency: body.currency ?? "USD",
-          status: "recorded",
-        })
-        .select("id, gross_amount, platform_fee_10pct, net_to_builder_90pct, currency, status, created_at")
-        .single();
-
-      if (txError) {
-        await logUsage(400);
-        return new Response(JSON.stringify({ error: txError.message }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      const encodedTx = JSON.stringify({ ok: true, transaction: tx, latency_ms: Date.now() - startTime });
-      bytesTransferred += new TextEncoder().encode(encodedTx).length;
-      await logUsage(200);
-      return new Response(encodedTx, {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     // Fetch user's storage pointer and allowed updatable fields for this app
     const { data: pointer, error: pointerError } = await supabaseAdmin
       .from("user_app_storage_pointers")
-      .select("id, provider, drive_folder_id, drive_file_id, storage_path, updatable_fields, read_only_fields, access_granted")
+      .select("id, provider, drive_folder_id, drive_file_id, storage_path, updatable_fields")
       .eq("user_id", userId)
       .eq("app_id", appId)
       .single();
 
-    if (pointerError || !pointer || !pointer.access_granted) {
+    if (pointerError || !pointer) {
       await logUsage(404);
-      return new Response(JSON.stringify({ error: "Active storage pointer not found for user and app" }), {
+      return new Response(JSON.stringify({ error: "Storage pointer not found for user and app" }), {
         status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    if (body.action === "revoke_pointer") {
-      await supabaseAdmin
-        .from("user_app_storage_pointers")
-        .update({ access_granted: false, updated_at: new Date().toISOString() })
-        .eq("id", pointer.id);
-
-      const encodedRevoke = JSON.stringify({
-        ok: true,
-        revoked_pointer_id: pointer.id,
-        latency_ms: Date.now() - startTime,
-      });
-      bytesTransferred += new TextEncoder().encode(encodedRevoke).length;
-      await logUsage(200);
-      return new Response(encodedRevoke, {
-        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -194,7 +133,7 @@ serve(async (req: Request) => {
         );
       }
 
-      // Touch pointer timestamp; forward filteredUpdates to Drive/Code.gs via authorized token
+      // Touch pointer timestamp; forward filteredUpdates to Drive/Code.gs via your next step
       await supabaseAdmin
         .from("user_app_storage_pointers")
         .update({ updated_at: new Date().toISOString() })
