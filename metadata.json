@@ -1,0 +1,6 @@
+{
+  "name": "PenDone Data",
+  "description": "Your Data Shared Under Your Control — BYOS web app ecosystem, metered Supabase gateway, and 10% revenue-share PWA marketplace.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
