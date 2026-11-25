@@ -1,10 +1,10 @@
 {
-  "id": "/",
+  "id": "/PenDone/",
   "name": "PenDone Data — BYOS App Store",
   "short_name": "PenDone",
   "description": "Your Data Shared Under Your Control. Bring-Your-Own-Storage web app ecosystem and 10% revenue-share PWA marketplace.",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": "/PenDone/",
+  "scope": "/PenDone/",
   "display": "standalone",
   "orientation": "any",
   "theme_color": "#0B0D12",
@@ -12,19 +12,19 @@
   "categories": ["productivity", "utilities", "developer"],
   "icons": [
     {
-      "src": "/pwa-192x192.png",
+      "src": "/PenDone/pwa-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa-512x512.png",
+      "src": "/PenDone/pwa-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/pwa-maskable-512x512.png",
+      "src": "/PenDone/pwa-maskable-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
